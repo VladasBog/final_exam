@@ -2,8 +2,14 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const {
+  getAppointments,
+  createAppointment,
+  updateAppointment,
+  deleteAppointment,
+} = require("./controller/appointment.controller.js");
+
 const connectMongoDB = require("./config/db.js");
-const Appointment = require("./models/Appointment.model.js");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,89 +19,19 @@ connectMongoDB();
 
 // Middlewares
 app.use(express.json());
+app.use(cors());
 
 // Routes
 // -- get all users appointments
-app.get("/api/appointments", async (req, res) => {
-  try {
-    const appointments = await Appointment.find();
-
-    res.status(200).send(appointments);
-  } catch (error) {
-    console.log(error);
-  }
-});
+app.get("/api/appointments", getAppointments);
 
 // -- create user appointment
-app.post("/api/appointments", async (req, res) => {
-  try {
-    const { name, email, time } = req.body;
-
-    //  check if time already exists
-    const timeExists = await Appointment.findOne({ time });
-
-    // if exists: throwing error
-    if (timeExists) {
-      res.status(400).send("Appointment already exists");
-      return;
-    }
-
-    // if does not exists: saving appointment data to DB
-    const appointment = await Appointment.create({ name, email, time });
-
-    // -- after successful save to db, sending confirmation message
-
-    if (appointment) {
-      res.status(201).send("Appointment registered");
-    } else {
-      res.status(400).send("Invalid appointment data");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-});
+app.post("/api/appointments", createAppointment);
 
 // -- update user appointment
-app.put("/api/appointments/:id", async (req, res) => {
-  const appointmentId = req.params.id;
-  const appointmentToUpdate = req.body;
-
-  // -- checking if time exists
-  const { time } = appointmentToUpdate;
-  const timeExists = await Appointment.findOne({ time });
-
-  // -- if exists : throw error
-  if (timeExists) {
-    res.status(400).send("Appointment already exists in this time");
-    return;
-  }
-
-  //  if does not exists find appointment by id and update
-  const updatedAppointment = await Appointment.findByIdAndUpdate(
-    appointmentId,
-    appointmentToUpdate
-  );
-
-  // if appointment id doesn't exists
-  if (!updatedAppointment) {
-    res.status(400).send("Appointment failed to updated");
-    return;
-  }
-
-  res.status(201).send("Appointment updated");
-});
+app.put("/api/appointments/:id", updateAppointment);
 
 // -- delete user appointment
-app.delete("/api/appointments/:id", async (req, res) => {
-  const appointmentId = req.params.id;
-
-  const deletedAppointment = await Appointment.findByIdAndDelete(appointmentId);
-
-  if (!deletedAppointment) {
-    res.status(400).send("Appointment was not deleted.");
-  }
-
-  res.status(200).send("Appointment deleted");
-});
+app.delete("/api/appointments/:id", deleteAppointment);
 
 app.listen(PORT, () => console.log(`Server is running on port: ${PORT}`));

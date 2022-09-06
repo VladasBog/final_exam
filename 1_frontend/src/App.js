@@ -1,6 +1,8 @@
 import React, { Suspense } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 const HomePage = React.lazy(() => import("./pages/HomePage"));
+const AppointmentsPage = React.lazy(() => import("./pages/AppointmentsPage"));
+
 function App() {
   return (
     <>
@@ -9,7 +11,7 @@ function App() {
       <Suspense fallback={<p>Loading...</p>}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/appointments" element={<p>Appointments</p>} />
+          <Route path="/appointments" element={<AppointmentsPage />} />
         </Routes>
       </Suspense>
     </>
