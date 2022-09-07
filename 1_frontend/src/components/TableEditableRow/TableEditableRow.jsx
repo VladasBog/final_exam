@@ -1,6 +1,10 @@
 import React from "react";
 
-const TableEditableRow = ({ editTableData, action }) => {
+const TableEditableRow = ({
+  editTableData,
+  handleEditChange,
+  handleCancelClick,
+}) => {
   return (
     <tr>
       <td>
@@ -9,7 +13,7 @@ const TableEditableRow = ({ editTableData, action }) => {
           placeholder="Enter edited name"
           id="name"
           value={editTableData.name}
-          onChange={action}
+          onChange={handleEditChange}
         />
       </td>
       <td>
@@ -18,25 +22,28 @@ const TableEditableRow = ({ editTableData, action }) => {
           placeholder="Enter edited email"
           id="email"
           value={editTableData.email}
-          onChange={action}
+          onChange={handleEditChange}
         />
       </td>
       <td>
         <input
           type="date"
           id="date"
-          onChange={action}
+          onChange={handleEditChange}
           value={editTableData.date}
         />
-        {/* <input
+      </td>
+      <td>
+        <input
           type="time"
           id="time"
-          onChange={action}
+          onChange={handleEditChange}
           value={editTableData.time}
-        /> */}
+        />
       </td>
       <td>
         <button type="submit">Save</button>
+        <button onClick={handleCancelClick}>Cancel</button>
       </td>
     </tr>
   );

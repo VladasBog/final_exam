@@ -8,17 +8,21 @@ content-type: application/json
 {
     "name":"Test",
     "email" : "test@email.com",
-    "time": "Mon, 08 Sep 2022 10:00:00 GMT"
+    "date": "2022-08-05",
+    "time": "11:00"
 }
 
 ### -- update user appointment
-PUT http://localhost:5000/api/appointments/631722944ae4948e2fba3e03
+PUT http://localhost:5000/api/appointments/6318643a0a3eb90db6504ad0
 Content-Type: application/json
 
-{
-    "time": "Mon, 08 Sep 2022 10:00:00 GMT"
+{   
+    "name": "Edited",
+    "email": "Edited",
+    "date": "2022-20-04",
+    "time": "18:30"
 }
 
 ### -- delete user appointment
 
-DELETE http://localhost:5000/api/appointments/631722944ae4948e2fba3e04
+DELETE http://localhost:5000/api/appointments/6317db20bee6ae90d63f8fd5

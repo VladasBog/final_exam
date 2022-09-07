@@ -9,8 +9,12 @@ const AppointmentSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  date: {
+    type: String,
+    required: true,
+  },
   time: {
-    type: Date,
+    type: String,
     required: true,
   },
 });
