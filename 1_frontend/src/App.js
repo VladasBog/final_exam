@@ -1,13 +1,13 @@
 import React, { Suspense } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar/Navbar";
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const AppointmentsPage = React.lazy(() => import("./pages/AppointmentsPage"));
 
 function App() {
   return (
     <>
-      <Link to={"/"}>Home</Link>
-      <Link to={"/appointments"}>Appointments</Link>
+      <Navbar />
       <Suspense fallback={<p>Loading...</p>}>
         <Routes>
           <Route path="/" element={<HomePage />} />

@@ -1,38 +1,50 @@
-import axios from "axios";
+// Hooks
 import { useState, useEffect } from "react";
+
+// Components
 import Form from "../../components/Form/Form";
 import Table from "../../components/Table/Table";
+
+// Styles
+import {
+  StyledMain,
+  StyledMessage,
+  StyledMessageContainer,
+} from "./AppointmentsPage.style";
+
+// api
 import api from "../../shared/api";
 
 const AppointmentsPage = () => {
   // State
-  const [testData, setTestData] = useState(false);
+  const [updateData, setUpdateData] = useState(false);
   const [globalData, setGlobalData] = useState("");
   const [message, setMessage] = useState("");
-  console.log(message);
+
   useEffect(() => {
     (async () => {
       const response = await api.getData();
       setGlobalData(response);
     })();
-  }, [testData]);
+  }, [updateData]);
 
   return (
-    <div>
+    <StyledMain>
       <Form
-        setTestData={setTestData}
+        setUpdateData={setUpdateData}
         globalData={globalData}
         setMessage={setMessage}
       />
-
+      <StyledMessageContainer>
+        {message && <StyledMessage>{message}</StyledMessage>}
+      </StyledMessageContainer>
       <Table
-        testData={testData}
-        setTestData={setTestData}
+        updateData={updateData}
+        setUpdateData={setUpdateData}
         globalData={globalData}
         setMessage={setMessage}
       />
-      {message && <p>{message}</p>}
-    </div>
+    </StyledMain>
   );
 };
 

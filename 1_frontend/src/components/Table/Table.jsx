@@ -1,66 +1,183 @@
-import { Fragment, useState, useEffect } from "react";
-import useFetch from "../../hooks/useFetch";
+// Hooks
+import { Fragment, useState, useEffect, useRef } from "react";
 
+// Components
 import TableRow from "../TableRow/TableRow";
 import TableEditableRow from "../TableEditableRow/TableEditableRow";
+
+// Styles
+import { StyledTable, StyledWarningMessageContainer } from "./Table.style";
+
+// api
 import api from "../../shared/api";
-import axios from "axios";
 
-const Table = ({ testData, setTestData, globalData, setMessage }) => {
-  const [appointmentsData, setAppointmentsData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  // const [message, setMessage] = useState("");
-  const reFetch = async () => {
-    const { data } = await axios.get("http://localhost:5000/api/appointments");
-
-    setAppointmentsData(data);
-  };
-  useEffect(() => {
-    reFetch();
-    setTestData(false);
-  }, [testData]);
-  // State
-
+const Table = ({ updateData, setUpdateData, globalData, setMessage }) => {
   const [editTableData, setEditTableData] = useState({
     name: "",
     email: "",
     date: "",
     time: "",
   });
-  console.log(editTableData);
+
+  const [validationMessage, setValidationMessage] = useState({
+    name: "",
+    email: "",
+    date: "",
+    time: "",
+    alreadyExists: "",
+  });
+
   const [isAppointmentEdditable, setIsAppointmentEdditable] = useState("");
 
-  // Functions
+  // Refs
+  const nameRef = useRef();
+  const emailRef = useRef();
+  const dateRef = useRef();
+  const timeRef = useRef();
+  const initialSubmit = useRef(true);
 
+  // Side effects
+  useEffect(() => {
+    setUpdateData(false);
+  }, [updateData]);
+
+  useEffect(() => {
+    if (!initialSubmit.current) {
+      validateInputs(
+        editTableData.name,
+        editTableData.email,
+        editTableData.date,
+        editTableData.time
+      );
+    }
+  }, [
+    editTableData.name,
+    editTableData.email,
+    editTableData.date,
+    editTableData.time,
+  ]);
+
+  // Functions
   const handleEditClick = (e, appointment) => {
     e.preventDefault();
 
     setIsAppointmentEdditable(appointment._id);
     setMessage("");
+
     const tableValues = {
       name: appointment.name,
       email: appointment.email,
       date: appointment.date,
       time: appointment.time,
     };
+
     setEditTableData(tableValues);
   };
 
+  const validateInputs = (name, email, date, time) => {
+    let isNameValid;
+    let isEmailValid;
+    let isDateValid;
+    let isTimeValid;
+    let isHoursValid;
+    let isTimeFree = true;
+
+    if (name.trim().split(" ").length < 2) {
+      nameRef.current.style.borderColor = "red";
+      isNameValid = false;
+    } else {
+      nameRef.current.style.borderColor = "green";
+      isNameValid = true;
+    }
+    if (!email.includes("@")) {
+      emailRef.current.style.borderColor = "red";
+      isEmailValid = false;
+    } else {
+      emailRef.current.style.borderColor = "green";
+      isEmailValid = true;
+    }
+    if (!date) {
+      dateRef.current.style.borderColor = "red";
+      isDateValid = false;
+    } else {
+      dateRef.current.style.borderColor = "green";
+      isDateValid = true;
+    }
+
+    const TimeExists = globalData.some(
+      (item) =>
+        item.date === date &&
+        item.time === time &&
+        item._id !== isAppointmentEdditable
+    );
+
+    if (time) {
+      const [hours, minutes] = time.split(":");
+      if ((+hours >= 8 && +hours < 17) || (+hours === 17 && +minutes === 0)) {
+        isHoursValid = true;
+
+        if (+minutes === 0 || +minutes === 30) {
+          timeRef.current.style.borderColor = "green";
+          isTimeValid = true;
+          if (TimeExists) {
+            isTimeFree = false;
+            timeRef.current.style.borderColor = "red";
+            dateRef.current.style.borderColor = "red";
+          }
+        } else {
+          timeRef.current.style.borderColor = "red";
+          isTimeValid = false;
+        }
+      } else {
+        timeRef.current.style.borderColor = "red";
+        isHoursValid = false;
+      }
+    } else {
+      timeRef.current.style.borderColor = "red";
+      isTimeValid = false;
+    }
+
+    setValidationMessage({
+      name: isNameValid
+        ? ""
+        : "Name and surname are required with space between",
+      email: isEmailValid ? "" : "Email must be email and include @",
+      date: isDateValid ? "" : "Add correct date",
+      time: isTimeValid
+        ? ""
+        : isHoursValid
+        ? "Time between appointments 30 minutes"
+        : "Appointments time can be from 8:00 to 17:00",
+
+      alreadyExists: isTimeFree
+        ? ""
+        : "Appointment in this time already exists",
+    });
+
+    return isNameValid &&
+      isEmailValid &&
+      isDateValid &&
+      isTimeValid &&
+      isTimeFree
+      ? true
+      : false;
+  };
   const handleEditChange = (e) => {
-    const fieldName = e.target.getAttribute("id");
+    e.preventDefault();
 
-    const fieldValue = e.target.value;
-
-    const newTableData = { ...editTableData };
-    newTableData[fieldName] = fieldValue;
+    const newTableData = {
+      name: nameRef.current.value,
+      email: emailRef.current.value,
+      date: dateRef.current.value,
+      time: timeRef.current.value,
+    };
 
     setEditTableData(newTableData);
   };
-
   const handleEditTableSubmit = async (e) => {
     e.preventDefault();
     const id = isAppointmentEdditable;
+
     const editedAppointment = {
       _id: isAppointmentEdditable,
       name: editTableData.name,
@@ -69,80 +186,88 @@ const Table = ({ testData, setTestData, globalData, setMessage }) => {
       time: editTableData.time,
     };
 
-    const newAppointment = [...appointmentsData];
-    const index = appointmentsData.findIndex(
-      (appointment) => appointment._id === isAppointmentEdditable
-    );
-    newAppointment[index] = editedAppointment;
-    console.log(editedAppointment.date);
-    console.log(editedAppointment.time);
-    setAppointmentsData(newAppointment);
-    const found = globalData.find(
-      (item) =>
-        item.date === editedAppointment.date &&
-        item.time === editedAppointment.time
+    const isInputsValid = validateInputs(
+      editTableData.name,
+      editTableData.email,
+      editTableData.date,
+      editTableData.time
     );
 
-    if (!found) {
-      await api.updateAppointment(editedAppointment._id, editedAppointment);
+    initialSubmit.current = false;
+
+    if (isInputsValid) {
+      const { data } = await api.updateAppointment(id, editedAppointment);
+
+      setMessage(data.message);
+      setIsAppointmentEdditable("");
+      setUpdateData(true);
+
+      initialSubmit.current = true;
     }
-
-    setIsAppointmentEdditable("");
-    setTestData(true);
   };
 
   const handleDeleteClick = async (e, id) => {
     e.preventDefault();
     const { message } = await api.deleteAppointment(id);
     setMessage(message);
-    setTestData(true);
+    setUpdateData(true);
   };
   const handleCancelClick = () => {
+    initialSubmit.current = true;
     setIsAppointmentEdditable("");
+    setUpdateData(true);
+    setMessage("");
+    setValidationMessage("");
   };
 
   return (
     <>
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : (
-        <form onSubmit={(e) => handleEditTableSubmit(e)}>
-          <table>
-            <thead>
-              <tr>
-                <th>Name and Surname</th>
-                <th>Email</th>
-                <th>Appointment Date</th>
-                <th>Appointment Time</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+      <StyledWarningMessageContainer>
+        {validationMessage && <p> {validationMessage.name}</p>}
+        {validationMessage.email && <p>{validationMessage.email}</p>}
+        {validationMessage.date && <p>{validationMessage.date}</p>}
+        {validationMessage.time && <p>{validationMessage.time}</p>}
+        {validationMessage.alreadyExists && (
+          <p>{validationMessage.alreadyExists}</p>
+        )}
+      </StyledWarningMessageContainer>
+
+      <form onSubmit={(e) => handleEditTableSubmit(e)}>
+        <StyledTable>
+          <thead>
+            <tr>
+              <th>Name and Surname</th>
+              <th>Email</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          {globalData && (
             <tbody>
-              {appointmentsData &&
-                appointmentsData.map((appointment) => (
-                  <Fragment key={appointment._id}>
-                    {isAppointmentEdditable === appointment._id ? (
-                      <TableEditableRow
-                        editTableData={editTableData}
-                        handleEditChange={handleEditChange}
-                        handleCancelClick={handleCancelClick}
-                      />
-                    ) : (
-                      <TableRow
-                        key={appointment._id}
-                        appointment={appointment}
-                        handleEditClick={handleEditClick}
-                        handleDeleteClick={handleDeleteClick}
-                      />
-                    )}
-                  </Fragment>
-                ))}
+              {globalData.map((appointment) => (
+                <Fragment key={appointment._id}>
+                  {isAppointmentEdditable === appointment._id ? (
+                    <TableEditableRow
+                      editTableData={editTableData}
+                      handleEditChange={handleEditChange}
+                      handleCancelClick={handleCancelClick}
+                      ref={{ nameRef, emailRef, dateRef, timeRef }}
+                    />
+                  ) : (
+                    <TableRow
+                      key={appointment._id}
+                      appointment={appointment}
+                      handleEditClick={handleEditClick}
+                      handleDeleteClick={handleDeleteClick}
+                    />
+                  )}
+                </Fragment>
+              ))}
             </tbody>
-          </table>
-        </form>
-      )}
+          )}
+        </StyledTable>
+      </form>
     </>
   );
 };

@@ -14,21 +14,7 @@ const getAppointments = asyncHandler(async (req, res) => {
 const createAppointment = asyncHandler(async (req, res) => {
   const { name, email, date, time } = req.body;
 
-  //  check if time already exists
-  const timeExists = await Appointment.findOne({ time, date });
-
-  // if exists: throwing error
-  if (timeExists) {
-    res
-      .status(400)
-      .send({ message: "Appointment already exists", success: false });
-    return;
-  }
-
-  // if does not exists: saving appointment data to DB
   const appointment = await Appointment.create({ name, email, date, time });
-
-  // -- after successful save to db, sending confirmation message
 
   if (appointment) {
     return res
@@ -44,17 +30,15 @@ const updateAppointment = asyncHandler(async (req, res) => {
   const appointmentId = req.params.id;
   const appointmentToUpdate = req.body;
 
-  //  find appointment by id and update
   const updatedAppointment = await Appointment.findByIdAndUpdate(
     appointmentId,
     appointmentToUpdate
   );
 
-  // if appointment id exists
   if (updatedAppointment) {
-    return res.status(400).json({ message: "Appointment updated" });
+    return res.status(201).json({ message: "Appointment updated" });
   } else {
-    res.status(201).send({ message: "Appointment failed to update" });
+    res.status(400).send({ message: "Appointment failed to update" });
     throw new Error({ message: "Appointment failed to update" });
   }
 });

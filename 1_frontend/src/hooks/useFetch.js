@@ -20,17 +20,6 @@ const useFetch = (url) => {
     fetchData();
   }, [url]);
 
-  const reFetch = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axios.get(url);
-      setData({ data });
-    } catch (error) {
-      setError(error.message);
-    }
-    setLoading(false);
-  };
-
   return { data, loading, error, reFetch };
 };
 

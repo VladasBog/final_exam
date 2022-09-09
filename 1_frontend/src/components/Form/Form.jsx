@@ -1,16 +1,23 @@
+// Hooks
 import { useState, useRef, useEffect } from "react";
+
+// Styles
+import { StyledForm, StyledWarningMessage } from "./Form.style";
+
+// api
 import api from "../../shared/api";
-import { StyledForm } from "./Form.style";
 
-const Form = ({ setTestData, globalData, setMessage }) => {
+const Form = ({ setUpdateData, globalData, setMessage }) => {
   // State
-
   const [appointment, setAppointment] = useState({
     name: "",
     email: "",
-    date: "",
-    time: "",
+    date: `${new Date().toLocaleDateString()}`,
+    time: `${new Date().getHours()}:${("0" + new Date().getMinutes()).slice(
+      -2
+    )}`,
   });
+
   const [validationMessage, setValidationMessage] = useState({
     name: "",
     email: "",
@@ -18,63 +25,14 @@ const Form = ({ setTestData, globalData, setMessage }) => {
     time: "",
   });
 
-  // const [message, setMessage] = useState("");
-
   // Refs
   const nameRef = useRef();
   const emailRef = useRef();
   const dateRef = useRef();
   const timeRef = useRef();
-
   const initialSubmit = useRef(true);
 
-  // Functions
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    setTestData(true);
-
-    const isInputsValid = validateInputs(
-      appointment.name,
-      appointment.email,
-      appointment.date,
-      appointment.time
-    );
-    const timeExists = globalData.find(
-      (item) => item.date === appointment.date && item.time === appointment.time
-    );
-
-    initialSubmit.current = false;
-    if (!isInputsValid) {
-      setMessage("");
-      return;
-    } else if (timeExists) {
-      nameRef.current.style.borderColor = "";
-      nameRef.current.style.borderColor = "";
-      emailRef.current.style.borderColor = "";
-      dateRef.current.style.borderColor = "";
-      timeRef.current.style.borderColor = "";
-      setMessage("Appointment already exists");
-      return;
-    }
-
-    const { message } = await api.createAppointment(appointment);
-    setMessage(message);
-
-    setAppointment({
-      name: "",
-      email: "",
-      date: "",
-      time: "",
-    });
-    initialSubmit.current = true;
-    nameRef.current.style.borderColor = "";
-    nameRef.current.style.borderColor = "";
-    emailRef.current.style.borderColor = "";
-    dateRef.current.style.borderColor = "";
-    timeRef.current.style.borderColor = "";
-  };
-
-  // side effects
+  // Side effects
   useEffect(() => {
     if (!initialSubmit.current) {
       validateInputs(
@@ -86,7 +44,52 @@ const Form = ({ setTestData, globalData, setMessage }) => {
     }
   }, [appointment.name, appointment.email, appointment.date, appointment.time]);
 
-  // functions
+  // Functions
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    setUpdateData(true);
+
+    const isInputsValid = validateInputs(
+      appointment.name,
+      appointment.email,
+      appointment.date,
+      appointment.time
+    );
+
+    const timeExists = globalData.find(
+      (item) => item.date === appointment.date && item.time === appointment.time
+    );
+
+    initialSubmit.current = false;
+
+    if (!isInputsValid) {
+      setMessage("");
+      return;
+    } else if (timeExists) {
+      dateRef.current.style.borderColor = "#ef233c";
+      timeRef.current.style.borderColor = "#ef233c";
+      setMessage("Appointment already exists");
+      return;
+    }
+
+    const { message } = await api.createAppointment(appointment);
+    setMessage(message);
+
+    setAppointment({
+      name: "",
+      email: "",
+      date: `${new Date().toLocaleDateString()}`,
+      time: `${new Date().getHours()}:${("0" + new Date().getMinutes()).slice(
+        -2
+      )}`,
+    });
+    initialSubmit.current = true;
+    nameRef.current.style.borderColor = "";
+    nameRef.current.style.borderColor = "";
+    emailRef.current.style.borderColor = "";
+    dateRef.current.style.borderColor = "";
+    timeRef.current.style.borderColor = "";
+  };
 
   const validateInputs = (name, email, date, time) => {
     let isNameValid;
@@ -161,7 +164,7 @@ const Form = ({ setTestData, globalData, setMessage }) => {
     <StyledForm onSubmit={submitHandler}>
       <div>
         <label htmlFor="name">Name</label>
-        <br />
+
         <input
           type="text"
           value={appointment.name}
@@ -170,11 +173,13 @@ const Form = ({ setTestData, globalData, setMessage }) => {
           }
           ref={nameRef}
         />
-        {validationMessage.name && <p>{validationMessage.name}</p>}
+        {validationMessage.name && (
+          <StyledWarningMessage>{validationMessage.name}</StyledWarningMessage>
+        )}
       </div>
       <div>
         <label htmlFor="email">Email</label>
-        <br />
+
         <input
           type="email"
           value={appointment.email}
@@ -183,11 +188,13 @@ const Form = ({ setTestData, globalData, setMessage }) => {
           }
           ref={emailRef}
         />
-        {validationMessage.email && <p>{validationMessage.email}</p>}
+        {validationMessage.email && (
+          <StyledWarningMessage>{validationMessage.email}</StyledWarningMessage>
+        )}
       </div>
       <div>
         <label htmlFor="date">Date</label>
-        <br />
+
         <input
           type="date"
           value={appointment.date}
@@ -196,11 +203,13 @@ const Form = ({ setTestData, globalData, setMessage }) => {
           }
           ref={dateRef}
         />
-        {validationMessage.date && <p>{validationMessage.date}</p>}
+        {validationMessage.date && (
+          <StyledWarningMessage>{validationMessage.date}</StyledWarningMessage>
+        )}
       </div>
       <div>
-        <label htmlFor="time">time</label>
-        <br />
+        <label htmlFor="time">Time</label>
+
         <input
           type="time"
           id="time"
@@ -210,12 +219,12 @@ const Form = ({ setTestData, globalData, setMessage }) => {
           }}
           ref={timeRef}
         />
-        {validationMessage.time && <p>{validationMessage.time}</p>}
+        {validationMessage.time && (
+          <StyledWarningMessage>{validationMessage.time}</StyledWarningMessage>
+        )}
       </div>
       <div>
-        <br />
         <input type="submit" value="Create appointment" />
-        {/* {message && <p>{message}</p>} */}
       </div>
     </StyledForm>
   );

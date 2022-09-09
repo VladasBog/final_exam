@@ -18,15 +18,11 @@ class API {
   }
 
   async updateAppointment(id, appointmentData) {
-    try {
-      const response = await axios.put(
-        HOST + `/api/appointments/${id}`,
-        appointmentData
-      );
-      return response;
-    } catch (error) {
-      console.log(error);
-    }
+    const response = await axios.put(
+      HOST + `/api/appointments/${id}`,
+      appointmentData
+    );
+    return response;
   }
 
   async deleteAppointment(id) {

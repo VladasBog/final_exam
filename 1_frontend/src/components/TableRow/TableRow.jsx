@@ -1,4 +1,3 @@
-import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPenToSquare,
@@ -16,8 +15,7 @@ const TableRow = ({ appointment, handleEditClick, handleDeleteClick }) => {
         <button onClick={(e) => handleEditClick(e, appointment)}>
           <FontAwesomeIcon icon={faPenToSquare} />
         </button>
-      </td>
-      <td>
+
         <button onClick={(e) => handleDeleteClick(e, appointment._id)}>
           <FontAwesomeIcon icon={faCircleXmark} />
         </button>

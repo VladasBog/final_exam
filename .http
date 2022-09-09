@@ -6,18 +6,18 @@ POST http://localhost:5000/api/appointments
 content-type: application/json
 
 {
-    "name":"Test",
+    "name":"Http",
     "email" : "test@email.com",
     "date": "2022-08-05",
     "time": "11:00"
 }
 
 ### -- update user appointment
-PUT http://localhost:5000/api/appointments/6318643a0a3eb90db6504ad0
+PUT http://localhost:5000/api/appointments/631a07ce17a21bfb9212aca0
 Content-Type: application/json
 
 {   
-    "name": "Edited",
+    "name": "Update",
     "email": "Edited",
     "date": "2022-20-04",
     "time": "18:30"
@@ -25,4 +25,4 @@ Content-Type: application/json
 
 ### -- delete user appointment
 
-DELETE http://localhost:5000/api/appointments/6317db20bee6ae90d63f8fd5
+DELETE http://localhost:5000/api/appointments/631a07ce17a21bfb9212aca0

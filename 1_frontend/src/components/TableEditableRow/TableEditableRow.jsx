@@ -1,28 +1,31 @@
-import React from "react";
+import { forwardRef } from "react";
+import { StyledTableRow } from "./TableEditableRow.style";
 
-const TableEditableRow = ({
-  editTableData,
-  handleEditChange,
-  handleCancelClick,
-}) => {
+const TableEditableRow = (
+  { editTableData, handleEditChange, handleCancelClick },
+  ref
+) => {
+  // Refs test
+  const { nameRef, emailRef, dateRef, timeRef } = ref;
+
   return (
-    <tr>
+    <StyledTableRow>
       <td>
         <input
           type="text"
-          placeholder="Enter edited name"
           id="name"
           value={editTableData.name}
           onChange={handleEditChange}
+          ref={nameRef}
         />
       </td>
       <td>
         <input
           type="email"
-          placeholder="Enter edited email"
           id="email"
           value={editTableData.email}
           onChange={handleEditChange}
+          ref={emailRef}
         />
       </td>
       <td>
@@ -31,6 +34,7 @@ const TableEditableRow = ({
           id="date"
           onChange={handleEditChange}
           value={editTableData.date}
+          ref={dateRef}
         />
       </td>
       <td>
@@ -39,14 +43,15 @@ const TableEditableRow = ({
           id="time"
           onChange={handleEditChange}
           value={editTableData.time}
+          ref={timeRef}
         />
       </td>
       <td>
         <button type="submit">Save</button>
         <button onClick={handleCancelClick}>Cancel</button>
       </td>
-    </tr>
+    </StyledTableRow>
   );
 };
 
-export default TableEditableRow;
+export default forwardRef(TableEditableRow);
